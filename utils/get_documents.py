@@ -1,16 +1,18 @@
 import uuid
+import xml.etree.ElementTree as ET
 
 
 import asyncio
 import aiohttp
 
 
-async def get_document(eisdocno: str):
+async def get_response(eisdocno: str):
+    """Эта фукнция запрашивает данные в ЕИС по реестровому номеру"""
     endpoint = 'https://int44.zakupki.gov.ru/eis-integration/services/getDocsLE2'
-    # headers = {
-    #     'user-agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
-    #     'accept': '*/*'
-    # }
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
+        'accept': '*/*'
+    }
     body = f'''
     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://zakupki.gov.ru/fz44/get-docs-le/ws">
        <soapenv:Header/>
@@ -28,16 +30,26 @@ async def get_document(eisdocno: str):
           </ws:getDocsByReestrNumberRequest>
        </soapenv:Body>
     </soapenv:Envelope>
-    '''.encode('utf-8')
+    '''
 
     async with aiohttp.ClientSession() as client:
         response = await client.post(url=endpoint, data=body, ssl=False)
-    return await response.text()
+    xml = await response.text()
+    return xml
+
+
+async def get_arc_urls(xml: str):
+    """Эта функция вытаскивает ссылки на архивы их ответа"""
+    # TODO нужно обработать исключения, когда файла нет, и другие левые ответы
+    root = ET.fromstring(xml)
+    urls = [url.text for url in root.findall('.//archiveUrl')]
+    return urls
 
 
 async def main():
-    r = await get_document('2713250003424000003')
-    print(r)
+    xml = await get_response('2713250003424000003')
+    urls = await get_arc_urls(xml)
+    print(urls)
 
 
 if __name__ == '__main__':
