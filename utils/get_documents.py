@@ -33,9 +33,9 @@ async def get_response(eisdocno: str):
     '''
 
     async with aiohttp.ClientSession() as client:
-        response = await client.post(url=endpoint, data=body, ssl=False)
-    xml = await response.text()
-    return xml
+        response = await client.post(url=endpoint, data=body, headers=headers, ssl=False)
+    response = await response.text()
+    return response
 
 
 async def get_arc_urls(xml: str):
@@ -46,11 +46,11 @@ async def get_arc_urls(xml: str):
     return urls
 
 
-async def main():
-    xml = await get_response('2713250003424000003')
-    urls = await get_arc_urls(xml)
-    print(urls)
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
+# async def main():
+#     xml = await get_response('2713250003424000003')
+#     urls = await get_arc_urls(xml)
+#     print(urls)
+#
+#
+# if __name__ == '__main__':
+#     asyncio.run(main())
