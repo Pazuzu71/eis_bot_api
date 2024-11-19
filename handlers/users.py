@@ -12,8 +12,8 @@ router: Router = Router()
 
 
 @router.message(lambda msg: re.fullmatch(r'\d{19}', msg.text.strip()))
-async def get_over_here(msg: Message):
+async def answer_19(msg: Message):
     await msg.reply('Ща найдем')
     response: str = await get_response(msg.text)
-    urls: list = await get_arc_urls(response)
-    await msg.reply('\n'.join(urls))
+    urls_str: str = await get_arc_urls(response)
+    await msg.reply(urls_str)

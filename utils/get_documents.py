@@ -43,8 +43,14 @@ async def get_arc_urls(xml: str):
     # TODO нужно обработать исключения, когда файла нет, и другие левые ответы
     root = ET.fromstring(xml)
     urls = [url.text for url in root.findall('.//archiveUrl')]
-    return urls
-
+    if urls:
+        return '\n'.join(urls)
+    no_data = root.findall('.//noData')
+    if no_data and no_data[0].text == 'true':
+        return 'Нет данных'
+    elif no_data:
+        return no_data[0].text
+    return 'Что-то пошло не так'
 
 # async def main():
 #     xml = await get_response('2713250003424000003')
