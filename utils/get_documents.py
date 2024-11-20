@@ -4,6 +4,11 @@ import xml.etree.ElementTree as ET
 
 import asyncio
 import aiohttp
+import aiofiles
+import time
+
+
+from config import TEMP
 
 
 async def get_response(eisdocno: str):
@@ -44,13 +49,26 @@ async def get_arc_urls(xml: str):
     root = ET.fromstring(xml)
     urls = [url.text for url in root.findall('.//archiveUrl')]
     if urls:
-        return '\n'.join(urls)
+        return '\n'.join(urls), urls
     no_data = root.findall('.//noData')
     if no_data and no_data[0].text == 'true':
-        return 'Нет данных'
+        return 'Нет данных', []
     elif no_data:
         return no_data[0].text
-    return 'Что-то пошло не так'
+    return 'Что-то пошло не так', []
+
+
+async def download_arcs(url: str, i):
+    async with aiohttp.ClientSession() as client:
+        async with client.get(url, ssl=True) as response:
+            while True:
+                time.sleep(1)
+                print(i, response.status)
+                if response.status == 200:
+                    out = await aiofiles.open(f'{TEMP}//{i}.zip', mode='wb')
+                    await out.write(await response.read())
+                    await out.close()
+                    break
 
 # async def main():
 #     xml = await get_response('2713250003424000003')
