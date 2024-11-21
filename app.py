@@ -1,5 +1,4 @@
 import asyncio
-import os
 
 
 from aiogram import Bot, Dispatcher
@@ -23,13 +22,8 @@ async def start_bot():
     await dp.start_polling(bot)
 
 
-def is_temp_exist():
-    if not os.path.exists('Temp'):
-        os.mkdir('Temp')
-
-
 if __name__ == '__main__':
-    is_temp_exist()
+
     try:
         asyncio.run(start_bot())
     except (KeyboardInterrupt, SystemExit):

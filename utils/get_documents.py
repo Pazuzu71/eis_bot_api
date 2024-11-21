@@ -8,9 +8,6 @@ import aiofiles
 import time
 
 
-from config import TEMP
-
-
 async def get_response(eisdocno: str):
     """Эта фукнция запрашивает данные в ЕИС по реестровому номеру"""
     endpoint = 'https://int44.zakupki.gov.ru/eis-integration/services/getDocsLE2'
@@ -36,11 +33,20 @@ async def get_response(eisdocno: str):
        </soapenv:Body>
     </soapenv:Envelope>
     '''
-
-    async with aiohttp.ClientSession() as client:
-        response = await client.post(url=endpoint, data=body, headers=headers, ssl=False)
-    response = await response.text()
-    return response
+    try:
+        async with aiohttp.ClientSession() as client:
+            response = await client.post(url=endpoint, data=body, headers=headers, ssl=False)
+        response = await response.text()
+        print(response)
+        return response, 1
+    except Exception as response:
+        print('________________________')
+        print(response)
+        print('________________________')
+        return str(response), 0
+    # except aiohttp.client_exceptions.ClientConnectorError:
+    #     print(aiohttp.client_exceptions.ClientConnectorError, 'Ошибка доступа к int44.zakupki.gov.ru:443')
+    #     return 'Error'
 
 
 async def get_arc_urls(xml: str):
@@ -58,16 +64,22 @@ async def get_arc_urls(xml: str):
     return 'Что-то пошло не так', []
 
 
-async def download_arcs(url: str, i):
+async def download_arcs(WORK_DIR: str, url: str, eis_docno: str, i: int):
     async with aiohttp.ClientSession() as client:
         async with client.get(url, ssl=True) as response:
+            cnt_break = 0
             while True:
-                time.sleep(1)
+                time.sleep(2)
                 print(i, response.status)
                 if response.status == 200:
-                    out = await aiofiles.open(f'{TEMP}//{i}.zip', mode='wb')
+                    out = await aiofiles.open(f'{WORK_DIR}//{eis_docno}_{i}.zip', mode='wb')
                     await out.write(await response.read())
                     await out.close()
+                    break
+                else:
+                    cnt_break += 1
+                if cnt_break >= 10:
+                    print(cnt_break, 'Ошибка cnt 10')
                     break
 
 # async def main():
