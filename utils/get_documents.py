@@ -57,14 +57,15 @@ async def get_arc_urls(xml: str):
     if urls:
         return '\n'.join(urls), urls
     no_data = root.findall('.//noData')
+    message = root.findall('.//message')
     if no_data and no_data[0].text == 'true':
-        return 'Нет данных', []
-    elif no_data:
-        return no_data[0].text
+        return 'Нет данных (noData = True)', []
+    elif message and message[0].text:
+        return message[0].text, []
     return 'Что-то пошло не так', []
 
 
-async def download_arcs(WORK_DIR: str, url: str, eis_docno: str, i: int):
+async def download_arcs(WORK_DIR: str, url: str, eis_docno: str, i: int, arc_name: str):
     async with aiohttp.ClientSession() as client:
         async with client.get(url, ssl=True) as response:
             cnt_break = 0
@@ -75,12 +76,12 @@ async def download_arcs(WORK_DIR: str, url: str, eis_docno: str, i: int):
                     out = await aiofiles.open(f'{WORK_DIR}//{eis_docno}_{i}.zip', mode='wb')
                     await out.write(await response.read())
                     await out.close()
-                    break
+                    return True
                 else:
                     cnt_break += 1
                 if cnt_break >= 10:
                     print(cnt_break, 'Ошибка cnt 10')
-                    break
+                    return False
 
 # async def main():
 #     xml = await get_response('2713250003424000003')

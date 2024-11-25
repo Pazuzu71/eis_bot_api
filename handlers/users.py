@@ -32,8 +32,19 @@ async def answer(msg: Message):
             create_dir(DIR)
         WORK_DIR = f'{TEMP_DIR}//{user_id}//{dt}_{eis_docno}'
 
+        arcs = []
         for i, url in enumerate(urls):
             time.sleep(1)
-            await download_arcs(WORK_DIR, url, eis_docno, i)
+            arc_name = f'{eis_docno}_{i}'
+            is_success_downloaded = await download_arcs(WORK_DIR, url, eis_docno, i, arc_name)
+            if is_success_downloaded:
+                arcs.append(arc_name)
+        if len(arcs) == len(urls) and len(urls) > 0:
+            await msg.reply('Архивы скачаны')
+        elif len(arcs) < len(urls):
+            await msg.reply('Архивы скачаны не все')
+        elif len(arcs) == 0:
+            await msg.reply('Архивы не скачаны')
+
     else:
         await msg.reply(response)
