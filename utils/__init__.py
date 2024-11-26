@@ -1,2 +1,3 @@
-from utils import get_documents
+from utils import api
 from utils import funcs
+from utils import xml

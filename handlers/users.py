@@ -9,7 +9,8 @@ from aiogram import Router
 from aiogram.types import Message  # , CallbackQuery
 
 
-from utils.get_documents import get_response, get_arc_urls, download_arcs
+from utils.api import get_response, download_arcs
+from utils.xml import get_arc_urls
 from config import TEMP_DIR
 from utils.funcs import create_dir, find_subsystemType, get_docs_dates
 

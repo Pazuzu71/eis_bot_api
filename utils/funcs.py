@@ -1,6 +1,6 @@
 import os
 import re
-import xml.etree.ElementTree as ET
+from utils.xml import get_publication_date
 
 
 def create_dir(DIR):
@@ -32,7 +32,8 @@ def get_docs_dates(WORK_DIR):
                 if file.startswith('epNoticeApplicationsAbsence_'):
                     protocols.append(file)
                 if file.startswith('contract_'):
-                    contracts.append(file)
+                    eispublicationdate = get_publication_date('contract', WORK_DIR, file)
+                    contracts.append((file, eispublicationdate))
                 if file.startswith('contractProcedure_'):
                     contract_procedures.append(file)
     return notifications, protocols, contracts, contract_procedures

@@ -1,9 +1,6 @@
-import os
 import uuid
-import xml.etree.ElementTree as ET
 
 
-# import asyncio
 import aiohttp
 import aiofiles
 import time
@@ -47,27 +44,6 @@ async def get_response(subsystemType: str, eisdocno: str):
         print(response)
         print('________________________')
         return str(response), 0
-    # except aiohttp.client_exceptions.ClientConnectorError:
-    #     print(aiohttp.client_exceptions.ClientConnectorError, 'Ошибка доступа к int44.zakupki.gov.ru:443')
-    #     return 'Error'
-
-
-async def get_arc_urls(xml: str):
-    """Эта функция вытаскивает ссылки на архивы их ответа"""
-    # TODO нужно обработать исключения, когда файла нет, и другие левые ответы
-    root = ET.fromstring(xml)
-    urls = [url.text for url in root.findall('.//archiveUrl')]
-    if urls:
-        return '\n'.join(urls), urls
-    no_data = root.findall('.//noData')
-    errorInfo = root.findall('.//errorInfo')
-    if errorInfo:
-        error_message = '\n'.join([m.text for m in errorInfo[0].findall('.//message')])
-    if no_data and no_data[0].text == 'true':
-        return 'Нет данных (noData = True)', []
-    elif errorInfo and error_message:
-        return error_message, []
-    return 'Что-то пошло не так', []
 
 
 async def download_arcs(WORK_DIR: str, url: str, arc_name: str):
@@ -87,14 +63,3 @@ async def download_arcs(WORK_DIR: str, url: str, arc_name: str):
                 if cnt_break >= 10:
                     print(cnt_break, 'Ошибка cnt 10')
                     return False
-
-
-
-# async def main():
-#     xml = await get_response('2713250003424000003')
-#     urls = await get_arc_urls(xml)
-#     print(urls)
-#
-#
-# if __name__ == '__main__':
-#     asyncio.run(main())
