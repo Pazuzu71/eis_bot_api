@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
-import re
 import os
+from datetime import datetime
 
 
 async def get_arc_urls(xml: str):
@@ -24,10 +24,11 @@ async def get_arc_urls(xml: str):
 def get_publication_date(document_type, WORK_DIR, file):
     tree = ET.parse(os.path.join(WORK_DIR, file))
     root = tree.getroot()
-    if document_type == 'contract':
+    if document_type in ('contract', 'contractProcedure'):
         try:
             eispublicationdate = root.find('.//{http://zakupki.gov.ru/oos/types/1}publishDate')
-            eispublicationdate = eispublicationdate.text
+            # eispublicationdate = eispublicationdate.text
+            eispublicationdate = datetime.fromisoformat(eispublicationdate.text)
             return eispublicationdate
         except Exception as e:
             print(e)

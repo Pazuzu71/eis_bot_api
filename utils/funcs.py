@@ -27,13 +27,14 @@ def get_docs_dates(WORK_DIR):
             for file in files:
                 if file.startswith('epNotification'):
                     notifications.append(file)
-                if file.startswith('epProtocol'):
+                elif file.startswith('epProtocol'):
                     protocols.append(file)
-                if file.startswith('epNoticeApplicationsAbsence_'):
+                elif file.startswith('epNoticeApplicationsAbsence_'):
                     protocols.append(file)
-                if file.startswith('contract_'):
+                elif file.startswith('contract_'):
                     eispublicationdate = get_publication_date('contract', WORK_DIR, file)
                     contracts.append((file, eispublicationdate))
-                if file.startswith('contractProcedure_'):
-                    contract_procedures.append(file)
+                elif file.startswith('contractProcedure_'):
+                    eispublicationdate = get_publication_date('contractProcedure', WORK_DIR, file)
+                    contract_procedures.append((file, eispublicationdate))
     return notifications, protocols, contracts, contract_procedures

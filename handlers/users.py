@@ -13,6 +13,7 @@ from utils.api import get_response, download_arcs
 from utils.xml import get_arc_urls
 from config import TEMP_DIR
 from utils.funcs import create_dir, find_subsystemType, get_docs_dates
+from keyboards.eis_publication_dates_kb import kb_creator
 
 
 router: Router = Router()
@@ -57,5 +58,14 @@ async def answer(msg: Message):
 
         notifications, protocols, contracts, contract_procedures = get_docs_dates(WORK_DIR)
         print(notifications, protocols, contracts, contract_procedures)
+        print(len(notifications), len(protocols), len(contracts), len(contract_procedures))
+        # СоК
+        if contracts:
+            kb = kb_creator(contracts[:81])
+            await msg.reply(text=f'Сведения о контракте (СоК): {msg.text}', reply_markup=kb)
+        # СоИ
+        if contract_procedures:
+            kb = kb_creator(contract_procedures[:81])
+            await msg.reply(text=f'Сведения об исполнении (СоИ): {msg.text}', reply_markup=kb)
     else:
         await msg.reply(response)
