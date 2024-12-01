@@ -27,7 +27,6 @@ def get_publication_date(document_type, WORK_DIR, file):
     if document_type in ('contract', 'contractProcedure'):
         try:
             eispublicationdate = root.find('.//{http://zakupki.gov.ru/oos/types/1}publishDate')
-            # eispublicationdate = eispublicationdate.text
             eispublicationdate = datetime.fromisoformat(eispublicationdate.text)
             return eispublicationdate
         except Exception as e:

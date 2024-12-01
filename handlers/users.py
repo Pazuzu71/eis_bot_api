@@ -6,7 +6,9 @@ from zipfile import ZipFile
 
 
 from aiogram import Router
-from aiogram.types import Message  # , CallbackQuery
+from aiogram import F
+from aiogram.types import Message, CallbackQuery
+from asyncpg import Pool
 
 
 from utils.api import get_response, download_arcs
@@ -23,7 +25,7 @@ router: Router = Router()
     re.fullmatch(r'\d{19}', msg.text.strip()),
     re.fullmatch(r'\d{18}', msg.text.strip()),
     re.fullmatch(r'\d{23}', msg.text.strip())]))
-async def answer(msg: Message):
+async def answer(msg: Message, pool: Pool):
     await msg.reply('Ща найдем')
     subsystemType = find_subsystemType(msg.text)
     response, error_state = await get_response(subsystemType, msg.text)
@@ -56,7 +58,7 @@ async def answer(msg: Message):
             z.close()
             os.unlink(os.path.join(WORK_DIR, f'{arc}.zip'))
 
-        notifications, protocols, contracts, contract_procedures = get_docs_dates(WORK_DIR)
+        notifications, protocols, contracts, contract_procedures = await get_docs_dates(WORK_DIR, pool)
         print(notifications, protocols, contracts, contract_procedures)
         print(len(notifications), len(protocols), len(contracts), len(contract_procedures))
         # СоК
@@ -69,3 +71,11 @@ async def answer(msg: Message):
             await msg.reply(text=f'Сведения об исполнении (СоИ): {msg.text}', reply_markup=kb)
     else:
         await msg.reply(response)
+
+
+# @router.callback_query(F.data.startswith('document_'))
+# async def send_document(callback: CallbackQuery, pool: Pool, queue: Queue):
+#     xml_id = callback.data.split('_')[-1]
+#     await callback.answer(text=f'id файла в базе {xml_id}')
+#     ftp_path, xmlname = await get_psql_data(pool, int(xml_id))
+#     await queue.put((callback.from_user.id, callback.message.message_id, ftp_path, xmlname))

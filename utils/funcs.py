@@ -1,6 +1,7 @@
 import os
 import re
 from utils.xml import get_publication_date
+from utils.sql import create_callback
 
 
 def create_dir(DIR):
@@ -20,7 +21,7 @@ def find_subsystemType(eisdocno: str):
         return 'RPEC'
 
 
-def get_docs_dates(WORK_DIR):
+async def get_docs_dates(WORK_DIR, pool):
     notifications, protocols, contracts, contract_procedures = [], [], [], []
     for path, dirs, files in os.walk(WORK_DIR):
         if files:
@@ -33,8 +34,10 @@ def get_docs_dates(WORK_DIR):
                     protocols.append(file)
                 elif file.startswith('contract_'):
                     eispublicationdate = get_publication_date('contract', WORK_DIR, file)
+                    doc_id = await create_callback(pool, WORK_DIR, file, eispublicationdate)
                     contracts.append((file, eispublicationdate))
                 elif file.startswith('contractProcedure_'):
                     eispublicationdate = get_publication_date('contractProcedure', WORK_DIR, file)
+                    doc_id = await create_callback(pool, WORK_DIR, file, eispublicationdate)
                     contract_procedures.append((file, eispublicationdate))
     return notifications, protocols, contracts, contract_procedures
