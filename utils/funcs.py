@@ -1,7 +1,7 @@
 import os
 import re
 from tools.xml import get_publication_date
-from tools.sql import create_callback
+from tools.sql import create_path
 
 
 def create_dir(DIR):
@@ -34,10 +34,10 @@ async def get_docs_dates(WORK_DIR, pool):
                     protocols.append(file)
                 elif file.startswith('contract_'):
                     eispublicationdate = get_publication_date('contract', WORK_DIR, file)
-                    doc_id = await create_callback(pool, WORK_DIR, file, eispublicationdate)
-                    contracts.append((file, eispublicationdate))
+                    doc_id = await create_path(pool, WORK_DIR, file)
+                    contracts.append((doc_id, eispublicationdate))
                 elif file.startswith('contractProcedure_'):
                     eispublicationdate = get_publication_date('contractProcedure', WORK_DIR, file)
-                    doc_id = await create_callback(pool, WORK_DIR, file, eispublicationdate)
-                    contract_procedures.append((file, eispublicationdate))
+                    doc_id = await create_path(pool, WORK_DIR, file)
+                    contract_procedures.append((doc_id, eispublicationdate))
     return notifications, protocols, contracts, contract_procedures

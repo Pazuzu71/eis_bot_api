@@ -6,13 +6,18 @@ from zipfile import ZipFile
 
 
 from aiogram import Router
-from aiogram.types import Message  # , CallbackQuery
+from aiogram import F
+from aiogram import Bot
+from aiogram.types import FSInputFile
+from aiogram.types import Message, CallbackQuery
+from asyncpg import Pool
 
 
 from tools.api import get_response, download_arcs
 from tools.xml import get_arc_urls
 from config import TEMP_DIR
 from utils.funcs import create_dir, find_subsystemType, get_docs_dates
+from tools.sql import get_path
 from keyboards.eis_publication_dates_kb import kb_creator
 
 
@@ -23,7 +28,7 @@ router: Router = Router()
     re.fullmatch(r'\d{19}', msg.text.strip()),
     re.fullmatch(r'\d{18}', msg.text.strip()),
     re.fullmatch(r'\d{23}', msg.text.strip())]))
-async def answer(msg: Message):
+async def answer(msg: Message, pool: Pool):
     await msg.reply('Ща найдем')
     subsystemType = find_subsystemType(msg.text)
     response, error_state = await get_response(subsystemType, msg.text)
@@ -56,7 +61,7 @@ async def answer(msg: Message):
             z.close()
             os.unlink(os.path.join(WORK_DIR, f'{arc}.zip'))
 
-        notifications, protocols, contracts, contract_procedures = get_docs_dates(WORK_DIR)
+        notifications, protocols, contracts, contract_procedures = await get_docs_dates(WORK_DIR, pool)
         print(notifications, protocols, contracts, contract_procedures)
         print(len(notifications), len(protocols), len(contracts), len(contract_procedures))
         # СоК
@@ -69,3 +74,17 @@ async def answer(msg: Message):
             await msg.reply(text=f'Сведения об исполнении (СоИ): {msg.text}', reply_markup=kb)
     else:
         await msg.reply(response)
+
+
+@router.callback_query(F.data.startswith('document_'))
+async def get_document(callback: CallbackQuery, pool: Pool, bot: Bot):
+    doc_id = callback.data.split('_')[-1]
+    doc_id = int(doc_id)
+    print(callback.data)
+    print(doc_id)
+    await callback.answer(text=f'id файла в базе {doc_id}')
+    path = await get_path(pool, doc_id)
+    sending_file = FSInputFile(path)
+    await bot.send_document(chat_id=callback.from_user.id,
+                            document=sending_file,
+                            reply_to_message_id=callback.message.message_id)
