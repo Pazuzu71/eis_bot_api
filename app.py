@@ -5,14 +5,18 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.session.aiohttp import AiohttpSession
 
 
-from config import TOKEN
+from config import TOKEN, CREDENTIALS
 from handlers import users, others
+from utils.sql import create_pool, create_tables
 
 
 async def start_bot():
+    pool = await create_pool(**CREDENTIALS)
+    await create_tables(pool)
+
     session = AiohttpSession()
     bot = Bot(token=TOKEN, session=session)
-    dp = Dispatcher()
+    dp = Dispatcher(pool=pool)
 
     # подключаем роутеры
     dp.include_router(users.router)
@@ -23,7 +27,6 @@ async def start_bot():
 
 
 if __name__ == '__main__':
-
     try:
         asyncio.run(start_bot())
     except (KeyboardInterrupt, SystemExit):
