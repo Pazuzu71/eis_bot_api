@@ -9,8 +9,8 @@ from aiogram import Router
 from aiogram.types import Message  # , CallbackQuery
 
 
-from utils.api import get_response, download_arcs
-from utils.xml import get_arc_urls
+from tools.api import get_response, download_arcs
+from tools.xml import get_arc_urls
 from config import TEMP_DIR
 from utils.funcs import create_dir, find_subsystemType, get_docs_dates
 from keyboards.eis_publication_dates_kb import kb_creator

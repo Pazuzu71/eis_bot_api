@@ -7,7 +7,7 @@ from aiogram.client.session.aiohttp import AiohttpSession
 
 from config import TOKEN, CREDENTIALS
 from handlers import users, others
-from utils.sql import create_pool, create_tables
+from tools.sql import create_pool, create_tables
 
 
 async def start_bot():

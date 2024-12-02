@@ -1,7 +1,7 @@
 import os
 import re
-from utils.xml import get_publication_date
-from utils.sql import create_callback
+from tools.xml import get_publication_date
+from tools.sql import create_callback
 
 
 def create_dir(DIR):
