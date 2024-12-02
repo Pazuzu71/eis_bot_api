@@ -6,7 +6,8 @@ from zipfile import ZipFile
 
 
 from aiogram import Router
-from aiogram.types import Message  # , CallbackQuery
+from aiogram import F
+from aiogram.types import Message, CallbackQuery
 
 
 from utils.api import get_response, download_arcs
@@ -69,3 +70,11 @@ async def answer(msg: Message):
             await msg.reply(text=f'Сведения об исполнении (СоИ): {msg.text}', reply_markup=kb)
     else:
         await msg.reply(response)
+
+
+# @router.callback_query(F.data.startswith('document_'))
+# async def send_file(callback: CallbackQuery):
+#     xml_id = callback.data.split('_')[-1]
+#     await callback.answer(text=f'id файла в базе {xml_id}')
+#     ftp_path, xmlname = await get_psql_data(pool, int(xml_id))
+#     await queue.put((callback.from_user.id, callback.message.message_id, ftp_path, xmlname))

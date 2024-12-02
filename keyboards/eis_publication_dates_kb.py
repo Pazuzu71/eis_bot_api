@@ -8,7 +8,6 @@ def kb_creator(documents):
         (file, eispublicationdate.astimezone(tz=pytz.timezone('Europe/Moscow')))
         for file, eispublicationdate in documents
     ], reverse=True)
-    # print(documents)
     buttons = [
         InlineKeyboardButton(text=document[1].strftime('%Y-%m-%d %H:%M'),
                              callback_data=f'document_{document[0]}') for document in documents
