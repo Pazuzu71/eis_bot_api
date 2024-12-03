@@ -56,9 +56,8 @@ async def answer(msg: Message, pool: Pool):
         elif len(arcs) == 0:
             await msg.reply('Архивы не скачаны')
         for arc in arcs:
-            z = ZipFile(os.path.join(WORK_DIR, f'{arc}.zip'))
-            z.extractall(WORK_DIR)
-            z.close()
+            with ZipFile(os.path.join(WORK_DIR, f'{arc}.zip')) as z:
+                z.extractall(WORK_DIR)
             os.unlink(os.path.join(WORK_DIR, f'{arc}.zip'))
 
         notifications, protocols, contracts, contract_procedures = [], [], [], []
