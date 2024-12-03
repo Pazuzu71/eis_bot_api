@@ -13,11 +13,11 @@ from aiogram.types import Message, CallbackQuery
 from asyncpg import Pool
 
 
-from tools.api import get_response, download_arcs
-from tools.xml import get_arc_urls
 from config import TEMP_DIR
-from utils.funcs import create_dir, find_subsystemType, get_docs_dates
-from tools.sql import get_path
+from tools.api import get_response, download_arcs
+from tools.xml import get_arc_urls, get_publication_date
+from tools.sql import create_path, get_path
+from utils.funcs import create_dir, find_subsystemType
 from keyboards.eis_publication_dates_kb import kb_creator
 
 
@@ -61,7 +61,24 @@ async def answer(msg: Message, pool: Pool):
             z.close()
             os.unlink(os.path.join(WORK_DIR, f'{arc}.zip'))
 
-        notifications, protocols, contracts, contract_procedures = await get_docs_dates(WORK_DIR, pool)
+        notifications, protocols, contracts, contract_procedures = [], [], [], []
+        for path, dirs, files in os.walk(WORK_DIR):
+            if files:
+                for file in files:
+                    if file.startswith('epNotification'):
+                        notifications.append(file)
+                    elif file.startswith('epProtocol'):
+                        protocols.append(file)
+                    elif file.startswith('epNoticeApplicationsAbsence_'):
+                        protocols.append(file)
+                    elif file.startswith('contract_'):
+                        eispublicationdate = get_publication_date('contract', WORK_DIR, file)
+                        doc_id = await create_path(pool, WORK_DIR, file)
+                        contracts.append((doc_id, eispublicationdate))
+                    elif file.startswith('contractProcedure_'):
+                        eispublicationdate = get_publication_date('contractProcedure', WORK_DIR, file)
+                        doc_id = await create_path(pool, WORK_DIR, file)
+                        contract_procedures.append((doc_id, eispublicationdate))
         print(notifications, protocols, contracts, contract_procedures)
         print(len(notifications), len(protocols), len(contracts), len(contract_procedures))
         # СоК
