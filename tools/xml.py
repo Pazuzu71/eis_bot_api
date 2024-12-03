@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import os
 from datetime import datetime
+import pytz
 
 
 async def get_arc_urls(xml: str):
@@ -28,6 +29,7 @@ def get_publication_date(document_type, WORK_DIR, file):
         try:
             eispublicationdate = root.find('.//{http://zakupki.gov.ru/oos/types/1}publishDate')
             eispublicationdate = datetime.fromisoformat(eispublicationdate.text)
+            eispublicationdate = eispublicationdate.astimezone(tz=pytz.timezone('Europe/Moscow'))
             return eispublicationdate
         except Exception as e:
             print(e)

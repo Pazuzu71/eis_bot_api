@@ -62,6 +62,7 @@ async def answer(msg: Message, pool: Pool):
             os.unlink(os.path.join(WORK_DIR, f'{arc}.zip'))
 
         notifications, protocols, contracts, contract_procedures = [], [], [], []
+        documents: dict = {}
         for path, dirs, files in os.walk(WORK_DIR):
             if files:
                 for file in files:
@@ -75,12 +76,17 @@ async def answer(msg: Message, pool: Pool):
                         eispublicationdate = get_publication_date('contract', WORK_DIR, file)
                         doc_id = await create_path(pool, WORK_DIR, file)
                         contracts.append((doc_id, eispublicationdate))
+                        documents['contracts'] = documents.get('contracts', []).append((doc_id, eispublicationdate))
                     elif file.startswith('contractProcedure_'):
                         eispublicationdate = get_publication_date('contractProcedure', WORK_DIR, file)
                         doc_id = await create_path(pool, WORK_DIR, file)
                         contract_procedures.append((doc_id, eispublicationdate))
+                        documents['contract_procedures'] = documents.get('contract_procedures', []).append((doc_id, eispublicationdate))
         print(notifications, protocols, contracts, contract_procedures)
         print(len(notifications), len(protocols), len(contracts), len(contract_procedures))
+        print(documents)
+        # TODO сделать сортировку по дате внутри словаря вместо сортировки в клаве
+        # TODO после проверки словаря клаву формировать по словарю по циклу
         # СоК
         if contracts:
             kb = kb_creator(contracts[:81])

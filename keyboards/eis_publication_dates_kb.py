@@ -1,12 +1,12 @@
-import pytz
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
 
 
 def kb_creator(documents):
+    # TODO сортировку вынести в тело кода из клавиатуры
     documents = sorted([
-        (file, eispublicationdate.astimezone(tz=pytz.timezone('Europe/Moscow')))
-        for file, eispublicationdate in documents
+        (doc_id, eispublicationdate)
+        for doc_id, eispublicationdate in documents
     ], reverse=True)
     buttons = [
         InlineKeyboardButton(text=document[1].strftime('%Y-%m-%d %H:%M'),
