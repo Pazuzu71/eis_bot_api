@@ -60,40 +60,34 @@ async def answer(msg: Message, pool: Pool):
                 z.extractall(WORK_DIR)
             os.unlink(os.path.join(WORK_DIR, f'{arc}.zip'))
 
-        notifications, protocols, contracts, contract_procedures = [], [], [], []
-        documents: dict = {}
+        docs_dict: dict = {}
+        # TODO Ключи можно сделать через лексикон
         for path, dirs, files in os.walk(WORK_DIR):
             if files:
                 for file in files:
                     if file.startswith('epNotification'):
-                        notifications.append(file)
+                        pass
                     elif file.startswith('epProtocol'):
-                        protocols.append(file)
+                        pass
                     elif file.startswith('epNoticeApplicationsAbsence_'):
-                        protocols.append(file)
+                        pass
                     elif file.startswith('contract_'):
                         eispublicationdate = get_publication_date('contract', WORK_DIR, file)
                         doc_id = await create_path(pool, WORK_DIR, file)
-                        contracts.append((doc_id, eispublicationdate))
-                        documents.setdefault('contracts', []).append((doc_id, eispublicationdate))
+                        docs_dict.setdefault('Сведения о контракте (СоК)', []).append((doc_id, eispublicationdate))
                     elif file.startswith('contractProcedure_'):
                         eispublicationdate = get_publication_date('contractProcedure', WORK_DIR, file)
                         doc_id = await create_path(pool, WORK_DIR, file)
-                        contract_procedures.append((doc_id, eispublicationdate))
-                        documents.setdefault('contract_procedures', []).append((doc_id, eispublicationdate))
-        print(notifications, protocols, contracts, contract_procedures)
-        print(len(notifications), len(protocols), len(contracts), len(contract_procedures))
-        print(documents)
-        # TODO сделать сортировку по дате внутри словаря вместо сортировки в клаве
-        # TODO после проверки словаря клаву формировать по словарю по циклу
-        # СоК
-        if contracts:
-            kb = kb_creator(contracts[:81])
-            await msg.reply(text=f'Сведения о контракте (СоК): {msg.text}', reply_markup=kb)
-        # СоИ
-        if contract_procedures:
-            kb = kb_creator(contract_procedures[:81])
-            await msg.reply(text=f'Сведения об исполнении (СоИ): {msg.text}', reply_markup=kb)
+                        docs_dict.setdefault('Сведения об исполнении (СоИ)', []).append((doc_id, eispublicationdate))
+        print(docs_dict)
+        for doc_type in ('Сведения о контракте (СоК)', 'Сведения об исполнении (СоИ)'):
+            documents = docs_dict.get(doc_type, [])
+            documents = sorted([
+                (doc_id, eispublicationdate)
+                for doc_id, eispublicationdate in documents
+            ], key=lambda x: x[1], reverse=True)
+            kb = kb_creator(documents[:81])
+            await msg.reply(text=f'{doc_type}: {msg.text}', reply_markup=kb)
     else:
         await msg.reply(response)
 
@@ -102,8 +96,6 @@ async def answer(msg: Message, pool: Pool):
 async def get_document(callback: CallbackQuery, pool: Pool, bot: Bot):
     doc_id = callback.data.split('_')[-1]
     doc_id = int(doc_id)
-    print(callback.data)
-    print(doc_id)
     await callback.answer(text=f'id файла в базе {doc_id}')
     path = await get_path(pool, doc_id)
     sending_file = FSInputFile(path)
