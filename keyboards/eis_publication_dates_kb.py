@@ -3,11 +3,6 @@ from aiogram.types import InlineKeyboardButton
 
 
 def kb_creator(documents):
-    # TODO сортировку вынести в тело кода из клавиатуры
-    documents = sorted([
-        (doc_id, eispublicationdate)
-        for doc_id, eispublicationdate in documents
-    ], reverse=True)
     buttons = [
         InlineKeyboardButton(text=document[1].strftime('%Y-%m-%d %H:%M'),
                              callback_data=f'document_{document[0]}') for document in documents
