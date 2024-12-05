@@ -65,34 +65,32 @@ async def answer(msg: Message, pool: Pool):
         for path, dirs, files in os.walk(WORK_DIR):
             if files:
                 for file in files:
+                    doc_id = await create_path(pool, WORK_DIR, file)
                     if file.startswith('epNotification'):
                         eispublicationdate = get_publication_date('notification', WORK_DIR, file)
-                        doc_id = await create_path(pool, WORK_DIR, file)
                         docs_dict.setdefault('Извещения', []).append((doc_id, eispublicationdate))
                     elif file.startswith('epProtocol'):
                         eispublicationdate = get_publication_date('protocol', WORK_DIR, file)
-                        doc_id = await create_path(pool, WORK_DIR, file)
                         docs_dict.setdefault('Протоколы', []).append((doc_id, eispublicationdate))
                     elif file.startswith('epNoticeApplicationsAbsence_'):
                         pass
                     elif file.startswith('contract_'):
                         eispublicationdate = get_publication_date('contract', WORK_DIR, file)
-                        doc_id = await create_path(pool, WORK_DIR, file)
                         docs_dict.setdefault('Сведения о контракте (СоК)', []).append((doc_id, eispublicationdate))
                     elif file.startswith('contractProcedure_'):
                         eispublicationdate = get_publication_date('contractProcedure', WORK_DIR, file)
-                        doc_id = await create_path(pool, WORK_DIR, file)
                         docs_dict.setdefault('Сведения об исполнении (СоИ)', []).append((doc_id, eispublicationdate))
         print(docs_dict)
 
-        for doc_type in ('Извещения', 'Сведения о контракте (СоК)', 'Сведения об исполнении (СоИ)'):
+        for doc_type in ('Извещения', 'Протоколы', 'Сведения о контракте (СоК)', 'Сведения об исполнении (СоИ)'):
             documents = docs_dict.get(doc_type, [])
-            documents = sorted([
-                (doc_id, eispublicationdate)
-                for doc_id, eispublicationdate in documents
-            ], key=lambda x: x[1], reverse=True)
-            kb = kb_creator(documents[:81])
-            await msg.reply(text=f'{doc_type}: {msg.text}', reply_markup=kb)
+            if documents:
+                documents = sorted([
+                    (doc_id, eispublicationdate)
+                    for doc_id, eispublicationdate in documents
+                ], key=lambda x: x[1], reverse=True)
+                kb = kb_creator(documents[:81])
+                await msg.reply(text=f'{doc_type}: {msg.text}', reply_markup=kb)
     else:
         await msg.reply(response)
 
