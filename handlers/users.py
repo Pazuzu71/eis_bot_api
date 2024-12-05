@@ -67,6 +67,8 @@ async def answer(msg: Message, pool: Pool):
                 for file in files:
                     if file.startswith('epNotification'):
                         eispublicationdate = get_publication_date('notification', WORK_DIR, file)
+                        doc_id = await create_path(pool, WORK_DIR, file)
+                        docs_dict.setdefault('Извещения', []).append((doc_id, eispublicationdate))
                     elif file.startswith('epProtocol'):
                         pass
                     elif file.startswith('epNoticeApplicationsAbsence_'):
@@ -81,7 +83,7 @@ async def answer(msg: Message, pool: Pool):
                         docs_dict.setdefault('Сведения об исполнении (СоИ)', []).append((doc_id, eispublicationdate))
         print(docs_dict)
 
-        for doc_type in ('Сведения о контракте (СоК)', 'Сведения об исполнении (СоИ)'):
+        for doc_type in ('Извещения', 'Сведения о контракте (СоК)', 'Сведения об исполнении (СоИ)'):
             documents = docs_dict.get(doc_type, [])
             documents = sorted([
                 (doc_id, eispublicationdate)
