@@ -66,7 +66,7 @@ async def answer(msg: Message, pool: Pool):
             if files:
                 for file in files:
                     if file.startswith('epNotification'):
-                        pass
+                        eispublicationdate = get_publication_date('notification', WORK_DIR, file)
                     elif file.startswith('epProtocol'):
                         pass
                     elif file.startswith('epNoticeApplicationsAbsence_'):

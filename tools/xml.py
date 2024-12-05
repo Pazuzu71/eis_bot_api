@@ -28,8 +28,17 @@ def get_publication_date(document_type, WORK_DIR, file):
     if document_type in ('contract', 'contractProcedure'):
         try:
             eispublicationdate = root.find('.//{http://zakupki.gov.ru/oos/types/1}publishDate')
-            eispublicationdate = datetime.fromisoformat(eispublicationdate.text)
-            eispublicationdate = eispublicationdate.astimezone(tz=pytz.timezone('Europe/Moscow'))
-            return eispublicationdate
         except Exception as e:
             print(e)
+    elif document_type in ('notification',):
+        try:
+            eispublicationdate = root.find('.//{http://zakupki.gov.ru/oos/EPtypes/1}publishDTInEIS')
+        except Exception as e:
+            print(e)
+
+    try:
+        eispublicationdate = datetime.fromisoformat(eispublicationdate.text)
+        eispublicationdate = eispublicationdate.astimezone(tz=pytz.timezone('Europe/Moscow'))
+        return eispublicationdate
+    except Exception as e:
+        print(e)
