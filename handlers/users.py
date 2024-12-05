@@ -70,7 +70,9 @@ async def answer(msg: Message, pool: Pool):
                         doc_id = await create_path(pool, WORK_DIR, file)
                         docs_dict.setdefault('Извещения', []).append((doc_id, eispublicationdate))
                     elif file.startswith('epProtocol'):
-                        pass
+                        eispublicationdate = get_publication_date('protocol', WORK_DIR, file)
+                        doc_id = await create_path(pool, WORK_DIR, file)
+                        docs_dict.setdefault('Протоколы', []).append((doc_id, eispublicationdate))
                     elif file.startswith('epNoticeApplicationsAbsence_'):
                         pass
                     elif file.startswith('contract_'):

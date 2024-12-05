@@ -30,7 +30,7 @@ def get_publication_date(document_type, WORK_DIR, file):
             eispublicationdate = root.find('.//{http://zakupki.gov.ru/oos/types/1}publishDate')
         except Exception as e:
             print(e)
-    elif document_type in ('notification',):
+    elif document_type in ('notification', 'protocol'):
         try:
             eispublicationdate = root.find('.//{http://zakupki.gov.ru/oos/EPtypes/1}publishDTInEIS')
         except Exception as e:
