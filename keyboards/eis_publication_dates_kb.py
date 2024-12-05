@@ -10,3 +10,4 @@ def kb_creator(documents):
     kb_builder = InlineKeyboardBuilder()
     kb_builder.row(width=3, *buttons)
     return kb_builder.as_markup()
+

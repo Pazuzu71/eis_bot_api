@@ -80,6 +80,7 @@ async def answer(msg: Message, pool: Pool):
                         doc_id = await create_path(pool, WORK_DIR, file)
                         docs_dict.setdefault('Сведения об исполнении (СоИ)', []).append((doc_id, eispublicationdate))
         print(docs_dict)
+
         for doc_type in ('Сведения о контракте (СоК)', 'Сведения об исполнении (СоИ)'):
             documents = docs_dict.get(doc_type, [])
             documents = sorted([
