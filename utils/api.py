@@ -51,7 +51,7 @@ async def download_arcs(WORK_DIR: str, url: str, arc_name: str):
         async with client.get(url, ssl=True) as response:
             cnt_break = 0
             while True:
-                time.sleep(2)
+                time.sleep(5)
                 print(arc_name, response.status)
                 if response.status == 200:
                     out = await aiofiles.open(f'{WORK_DIR}//{arc_name}.zip', mode='wb')

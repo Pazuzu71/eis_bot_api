@@ -4,11 +4,6 @@ import os
 import asyncpg
 
 
-async def create_pool(**kwargs):
-    pool = await asyncpg.create_pool(**kwargs)
-    return pool
-
-
 async def create_tables(pool: asyncpg.Pool):
     await pool.execute(
         '''

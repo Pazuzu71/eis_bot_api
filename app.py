@@ -8,11 +8,10 @@ import asyncpg
 
 from config import TOKEN, CREDENTIALS
 from handlers import users, others
-from tools.sql import create_pool, create_tables
+from utils.sql import create_tables
 
 
 async def start_bot():
-    # pool = await create_pool(**CREDENTIALS)
     async with asyncpg.create_pool(**CREDENTIALS) as pool:
         await create_tables(pool)
 

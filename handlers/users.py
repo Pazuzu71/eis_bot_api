@@ -4,7 +4,6 @@ import time
 from datetime import datetime
 from zipfile import ZipFile
 
-
 from aiogram import Router
 from aiogram import F
 from aiogram import Bot
@@ -12,14 +11,12 @@ from aiogram.types import FSInputFile
 from aiogram.types import Message, CallbackQuery
 from asyncpg import Pool
 
-
 from config import TEMP_DIR
-from tools.api import get_response, download_arcs
-from tools.xml import get_arc_urls, get_publication_date
-from tools.sql import create_path, get_path
+from utils.api import get_response, download_arcs
+from utils.xml import get_arc_urls, get_publication_date
+from utils.sql import create_path, get_path
 from utils.funcs import create_dir, find_subsystemType
 from keyboards.eis_publication_dates_kb import kb_creator
-
 
 router: Router = Router()
 
@@ -58,7 +55,7 @@ async def answer(msg: Message, pool: Pool):
         for arc in arcs:
             with ZipFile(os.path.join(WORK_DIR, f'{arc}.zip')) as z:
                 z.extractall(WORK_DIR)
-            os.unlink(os.path.join(WORK_DIR, f'{arc}.zip'))
+            # os.unlink(os.path.join(WORK_DIR, f'{arc}.zip'))
 
         docs_dict: dict = {}
         # TODO Ключи можно сделать через лексикон
@@ -77,7 +74,8 @@ async def answer(msg: Message, pool: Pool):
                         docs_dict.setdefault('Протоколы', []).append((doc_id, eispublicationdate))
                     elif file.startswith('epNoticeApplicationsAbsence_'):
                         eispublicationdate = get_publication_date('epNoticeApplicationsAbsence', WORK_DIR, file)
-                        docs_dict.setdefault('Уведомление об отсутствии заявок', []).append((doc_id, eispublicationdate))
+                        docs_dict.setdefault('Уведомление об отсутствии заявок', []).append(
+                            (doc_id, eispublicationdate))
                     elif file.startswith('cpContractSign'):
                         eispublicationdate = get_publication_date('cpContractSign', WORK_DIR, file)
                         docs_dict.setdefault('Проект контракта (ПК)', []).append((doc_id, eispublicationdate))
@@ -89,8 +87,8 @@ async def answer(msg: Message, pool: Pool):
                         docs_dict.setdefault('Сведения об исполнении (СоИ)', []).append((doc_id, eispublicationdate))
         print(docs_dict)
 
-        for doc_type in ('Извещение', 'Протоколы', 'Уведомление об отсутствии заявок',
-                         'Сведения о контракте (СоК)', 'Сведения об исполнении (СоИ)'):
+        for doc_type in ('План-график (ПГ)', 'Извещение', 'Протоколы', 'Уведомление об отсутствии заявок',
+                         'Проект контракта (ПК)', 'Сведения о контракте (СоК)', 'Сведения об исполнении (СоИ)'):
             documents = docs_dict.get(doc_type, [])
             if documents:
                 documents = sorted([
