@@ -66,14 +66,21 @@ async def answer(msg: Message, pool: Pool):
             if files:
                 for file in files:
                     doc_id = await create_path(pool, WORK_DIR, file)
-                    if file.startswith('epNotification'):
+                    if file.startswith('tenderPlan2020_'):
+                        eispublicationdate = get_publication_date('tenderPlan2020', WORK_DIR, file)
+                        docs_dict.setdefault('План-график (ПГ)', []).append((doc_id, eispublicationdate))
+                    elif file.startswith('epNotification'):
                         eispublicationdate = get_publication_date('notification', WORK_DIR, file)
-                        docs_dict.setdefault('Извещения', []).append((doc_id, eispublicationdate))
+                        docs_dict.setdefault('Извещение', []).append((doc_id, eispublicationdate))
                     elif file.startswith('epProtocol'):
                         eispublicationdate = get_publication_date('protocol', WORK_DIR, file)
                         docs_dict.setdefault('Протоколы', []).append((doc_id, eispublicationdate))
                     elif file.startswith('epNoticeApplicationsAbsence_'):
-                        pass
+                        eispublicationdate = get_publication_date('epNoticeApplicationsAbsence', WORK_DIR, file)
+                        docs_dict.setdefault('Уведомление об отсутствии заявок', []).append((doc_id, eispublicationdate))
+                    elif file.startswith('cpContractSign'):
+                        eispublicationdate = get_publication_date('cpContractSign', WORK_DIR, file)
+                        docs_dict.setdefault('Проект контракта (ПК)', []).append((doc_id, eispublicationdate))
                     elif file.startswith('contract_'):
                         eispublicationdate = get_publication_date('contract', WORK_DIR, file)
                         docs_dict.setdefault('Сведения о контракте (СоК)', []).append((doc_id, eispublicationdate))
@@ -82,7 +89,8 @@ async def answer(msg: Message, pool: Pool):
                         docs_dict.setdefault('Сведения об исполнении (СоИ)', []).append((doc_id, eispublicationdate))
         print(docs_dict)
 
-        for doc_type in ('Извещения', 'Протоколы', 'Сведения о контракте (СоК)', 'Сведения об исполнении (СоИ)'):
+        for doc_type in ('Извещение', 'Протоколы', 'Уведомление об отсутствии заявок',
+                         'Сведения о контракте (СоК)', 'Сведения об исполнении (СоИ)'):
             documents = docs_dict.get(doc_type, [])
             if documents:
                 documents = sorted([

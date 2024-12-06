@@ -25,14 +25,26 @@ async def get_arc_urls(xml: str):
 def get_publication_date(document_type, WORK_DIR, file):
     tree = ET.parse(os.path.join(WORK_DIR, file))
     root = tree.getroot()
+    # TODO поправить порядок
     if document_type in ('contract', 'contractProcedure'):
         try:
             eispublicationdate = root.find('.//{http://zakupki.gov.ru/oos/types/1}publishDate')
         except Exception as e:
             print(e)
-    elif document_type in ('notification', 'protocol'):
+    elif document_type in ('notification', 'protocol', 'epNoticeApplicationsAbsence'):
         try:
             eispublicationdate = root.find('.//{http://zakupki.gov.ru/oos/EPtypes/1}publishDTInEIS')
+        except Exception as e:
+            print(e)
+    elif document_type in ('tenderPlan2020',):
+        try:
+            eispublicationdate = root.find('.//{http://zakupki.gov.ru/oos/TPtypes/1}publishDate')
+        except Exception as e:
+            print(e)
+    elif document_type in ('cpContractSign',):
+        try:
+            commonInfo = root.find('.//{http://zakupki.gov.ru/oos/CPtypes/1}commonInfo')
+            eispublicationdate = commonInfo.find('.//{http://zakupki.gov.ru/oos/CPtypes/1}publishDTInEIS')
         except Exception as e:
             print(e)
     try:
